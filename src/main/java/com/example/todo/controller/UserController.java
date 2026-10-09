@@ -1,40 +1,35 @@
 package com.example.todo.controller;
 
-import com.example.todo.exception.UserNotFoundException;
 import com.example.todo.model.Todo;
 import com.example.todo.model.User;
-import com.example.todo.repository.UserRepository;
+import com.example.todo.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/user")
+
 public class UserController {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
 
-    public UserController(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/user/{id}")
     public User findById(@PathVariable("id") Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
+        return userService.findById(userId);
     }
 
-    @PostMapping
+    @PostMapping("/user")
     @ResponseStatus(HttpStatus.CREATED)
     public User create(@RequestBody User user) {
-        userRepository.save(user);
-        return user;
+        return userService.create(user);
     }
 
-    @PostMapping("/{id}/todo")
+    @PostMapping("/user/{id}/todo")
     @ResponseStatus(HttpStatus.CREATED)
     public Todo addTodo(@PathVariable("id") Long userId, @RequestBody Todo todo) {
-        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
-        userRepository.addTodo(userId, todo);
-        return todo;
+        return userService.addTodo(userId, todo);
     }
 }
